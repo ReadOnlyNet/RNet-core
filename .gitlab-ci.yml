@@ -16,7 +16,7 @@ deploy to dev:
   stage: deploy
   extends: .deploy_base
   script:
-    - ssh dyno@10.12.0.95 "cd RNet-core && git pull origin master && npm install && npm link RNet && tsc -p 'tsconfig.json' && npm link"
-    - ssh dyno@10.12.0.95 "./restart.sh"
+    - ssh rnet@10.12.0.95 "cd RNet-core && git pull origin master && npm install && npm link RNet && tsc -p 'tsconfig.json' && npm link"
+    - ssh rnet@10.12.0.95 "./restart.sh"
   only: 
     - master

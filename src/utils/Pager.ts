@@ -39,8 +39,8 @@ export default class Pager extends Base {
 	 * @param {Object[]} 			options.fields All embed fields that will be paged
 	 * @param {Number} 				[options.pageLimit=10] The number of items per page, max 25, default 10
 	 */
-	constructor(dyno: any, pagers: Collection, id: string, options: any) {
-		super(dyno);
+	constructor(rnet: any, pagers: Collection, id: string, options: any) {
+		super(rnet);
 
 		this.id = id;
 		this.channelId = typeof options.channel === 'string' ? options.channel : options.channel.id;

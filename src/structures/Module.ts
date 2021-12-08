@@ -1,5 +1,5 @@
 import * as eris from '@rnet.cf/eris';
-import * as dyno from 'RNet';
+import * as rnet from 'RNet';
 import * as schedule from 'node-schedule';
 import Base from './Base';
 
@@ -45,14 +45,14 @@ abstract class Module extends Base {
 	public registerListener(event: string, listener: Function) {
 		const boundListener = listener.bind(this);
 		this._boundListeners.set(event, boundListener);
-		this.dyno.dispatcher.registerListener(event, boundListener, this);
+		this.rnet.dispatcher.registerListener(event, boundListener, this);
 	}
 
 	/**
 	 * Check if a module is enabled for a server, not async for performance
 	 */
 	public isEnabled(guild: eris.Guild, module: string|Module, guildConfig?: any): boolean|Promise<boolean> {
-		if (!guild || !this.dyno.isReady) {
+		if (!guild || !this.rnet.isReady) {
 			return guildConfig ? false : Promise.resolve(false);
 		}
 
@@ -62,7 +62,7 @@ abstract class Module extends Base {
 
 		return guildConfig ? this._isEnabled(guild, module, guildConfig) :
 			new Promise((resolve: Function) => {
-				this.dyno.guilds.getOrFetch(guild.id).then((config: any) =>
+				this.rnet.guilds.getOrFetch(guild.id).then((config: any) =>
 					resolve(this._isEnabled(guild, module, config)))
 				.catch(() => resolve(false));
 			});
@@ -87,7 +87,7 @@ abstract class Module extends Base {
 	public _unload(...args: any[]) {
 		if (this._boundListeners && this._boundListeners.size > 0) {
 			for (const [event, listener] of this._boundListeners.entries()) {
-				this.dyno.dispatcher.unregisterListener(event, listener);
+				this.rnet.dispatcher.unregisterListener(event, listener);
 			}
 		}
 
@@ -102,7 +102,7 @@ abstract class Module extends Base {
 		}
 	}
 
-	private _isEnabled(guild: eris.Guild, mod: string|Module, guildConfig: dyno.GuildConfig) {
+	private _isEnabled(guild: eris.Guild, mod: string|Module, guildConfig: rnet.GuildConfig) {
 		if (!guild || !guildConfig) {
 			return false;
 		}
@@ -113,13 +113,13 @@ abstract class Module extends Base {
 		}
 
 		if (typeof mod === 'string') {
-			mod = this.dyno.modules.get(mod);
+			mod = this.rnet.modules.get(mod);
 		}
 
 		const name = (<Module>mod).module || (<Module>mod).name;
 
 		// check if globally disabled
-		const globalConfig = this.dyno.globalConfig;
+		const globalConfig = this.rnet.globalConfig;
 		if (globalConfig && globalConfig.modules.hasOwnProperty(name) &&
 			globalConfig.modules[name] === false) {
 				return false;
@@ -146,7 +146,7 @@ abstract class Module extends Base {
 		return true;
 	}
 
-	private _checkBeta(guildConfig: dyno.GuildConfig) {
+	private _checkBeta(guildConfig: rnet.GuildConfig) {
 		if (guildConfig.beta) {
 			if (!this.config.test && !this.config.beta) {
 				return false;
@@ -158,7 +158,7 @@ abstract class Module extends Base {
 		return true;
 	}
 
-	private _checkPremium(guildConfig: dyno.GuildConfig) {
+	private _checkPremium(guildConfig: rnet.GuildConfig) {
 		if (!this.config.isPremium && guildConfig.isPremium && guildConfig.premiumInstalled) {
 			return false;
 		}
