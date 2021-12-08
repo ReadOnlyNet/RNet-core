@@ -3,13 +3,13 @@ import * as eris from '@rnet.cf/eris';
 const Permissions = eris.Constants.Permissions;
 
 export default class Role {
-	private dyno: any;
+	private rnet: any;
 	private client: eris.Client;
 	private guild: eris.Guild;
 
-	constructor(dyno: any, guild: eris.Guild) {
-		this.dyno = dyno;
-		this.client = dyno.client;
+	constructor(rnet: any, guild: eris.Guild) {
+		this.rnet = rnet;
+		this.client = rnet.client;
 		this.guild = guild;
 	}
 
@@ -31,7 +31,7 @@ export default class Role {
 	 * Check if the bot has permissions
 	 */
 	public hasPermissions(guild: eris.Guild, ...perms: string[]): boolean {
-		const clientMember = guild.members.get(this.dyno.userid);
+		const clientMember = guild.members.get(this.rnet.userid);
 		for (const perm of perms) {
 			if (!clientMember.permission || !clientMember.permission.has(perm)) {
 				return false;

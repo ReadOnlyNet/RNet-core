@@ -20,8 +20,8 @@ class Base {
 	public module: string|Module;
 	private _dyno: any;
 
-	constructor(dyno: any, guild?: eris.Guild) {
-		this._dyno = dyno;
+	constructor(rnet: any, guild?: eris.Guild) {
+		this._dyno = rnet;
 
 		if (guild) {
 			this.guild = guild;
@@ -59,7 +59,7 @@ class Base {
 	/**
 	 * RNet instance
 	 */
-	public get dyno() {
+	public get rnet() {
 		return this._dyno;
 	}
 
@@ -67,112 +67,112 @@ class Base {
 	 * Eris client instance
 	 */
 	public get client() {
-		return this.dyno.client;
+		return this.rnet.client;
 	}
 
 	/**
 	 * Eris rest client instance
 	 */
 	public get restClient() {
-		return this.dyno.restClient;
+		return this.rnet.restClient;
 	}
 
 	/**
 	 * SnowTransfer client instance
 	 */
 	public get snowClient() {
-		return this.dyno.snowClient;
+		return this.rnet.snowClient;
 	}
 
 	/**
 	 * Cluster data
 	 */
 	public get cluster() {
-		return this.dyno.options;
+		return this.rnet.options;
 	}
 
 	/**
 	 * RNet configuration
 	 */
 	public get config() {
-		return this.dyno.config;
+		return this.rnet.config;
 	}
 
 	/**
 	 * RNet global configuration
 	 */
 	public get globalConfig() {
-		return this.dyno.globalConfig;
+		return this.rnet.globalConfig;
 	}
 
 	/**
 	 * Logger instance
 	 */
 	public get logger() {
-		return this.dyno.logger;
+		return this.rnet.logger;
 	}
 
 	/**
 	 * IPCManager instance
 	 */
 	public get ipc() {
-		return this.dyno.ipc;
+		return this.rnet.ipc;
 	}
 
 	/**
 	 * WebhookManager instance
 	 */
 	public get webhooks() {
-		return this.dyno.webhooks;
+		return this.rnet.webhooks;
 	}
 
 	/**
 	 * PermissionsManager instance
 	 */
 	public get permissionsManager() {
-		return this.dyno.permissions;
+		return this.rnet.permissions;
 	}
 
 	/**
 	 * RNet data models
 	 */
 	public get models() {
-		return this.dyno.models;
+		return this.rnet.models;
 	}
 
 	/**
 	 * Datafactory DB instance
 	 */
 	public get db() {
-		return this.dyno.db;
+		return this.rnet.db;
 	}
 
 	/**
 	 * Redis connection instance
 	 */
 	public get redis() {
-		return this.dyno.redis;
+		return this.rnet.redis;
 	}
 
 	/**
 	 * Statsd client instance
 	 */
 	public get statsd() {
-		return this.dyno.statsd;
+		return this.rnet.statsd;
 	}
 
 	/**
 	 * Prometheus client
 	 */
 	public get prom() {
-		return this.dyno.prom;
+		return this.rnet.prom;
 	}
 
 	/**
 	 * Helper methods provided to commands and modules
 	 */
 	public get utils() {
-		return this.dyno.utils;
+		return this.rnet.utils;
 	}
 
 	get langs() {
@@ -180,19 +180,19 @@ class Base {
 	}
 
 	public getConfig(guildId: string): Promise<any> {
-		return this.dyno.guilds.fetch(guildId);
+		return this.rnet.guilds.fetch(guildId);
 	}
 
 	public getCachedConfig(guildId: string): Promise<any> {
-		return this.dyno.guilds.getOrFetch(guildId);
+		return this.rnet.guilds.getOrFetch(guildId);
 	}
 
 	public getCommand(name: string): Command {
-		return this.dyno.commands.get(name);
+		return this.rnet.commands.get(name);
 	}
 
 	public getModule(name: string): Module {
-		return this.dyno.modules.get(name);
+		return this.rnet.modules.get(name);
 	}
 
 	public t(guildConfig: any, key: string, values: any) {
@@ -293,28 +293,28 @@ class Base {
 	 * Passthrough method to check if user is admin
 	 */
 	public isAdmin(user: eris.Member|eris.User): boolean {
-		return this.dyno.permissions.isAdmin(user);
+		return this.rnet.permissions.isAdmin(user);
 	}
 
 	/**
 	 * Passthrough method to check if user is overseer
 	 */
 	public isOverseer(user: eris.Member|eris.User): boolean {
-		return this.dyno.permissions.isOverseer(user);
+		return this.rnet.permissions.isOverseer(user);
 	}
 
 	/**
 	 * Passthrough method to check if user is server admin
 	 */
 	public isServerAdmin(member: eris.Member, channel: eris.Channel): boolean {
-		return this.dyno.permissions.isServerAdmin(member, channel);
+		return this.rnet.permissions.isServerAdmin(member, channel);
 	}
 
 	/**
 	 * Passthrough method to check if user is server mod
 	 */
 	public isServerMod(member: eris.Member, channel: eris.Channel): boolean {
-		return this.dyno.permissions.isServerMod(member, channel);
+		return this.rnet.permissions.isServerMod(member, channel);
 	}
 
 	/**
@@ -330,7 +330,7 @@ class Base {
 	public async getStreamCount(): Promise<number> {
 		let vcs;
 		try {
-			vcs = await this.redis.hgetallAsync(`dyno:vc:${this.config.client.id}`);
+			vcs = await this.redis.hgetallAsync(`rnet:vc:${this.config.client.id}`);
 		} catch (err) {
 			this.logger.error(err);
 			return this.config.maxStreamLimit;
@@ -364,7 +364,7 @@ class Base {
 	 * Create a role
 	 */
 	public createRole(guild: eris.Guild, options: any): Promise<any> {
-		const role = new Role(this.dyno, guild);
+		const role = new Role(this.rnet, guild);
 		return role.createRole(options);
 	}
 
@@ -411,7 +411,7 @@ class Base {
 	 * Attempt to send a DM to a user
 	 */
 	public sendDM(userId: string, content: eris.MessageContent): Promise<eris.Message> {
-		this.dyno.prom.register.getSingleMetric('dyno_app_messages_sent').inc({ type: 'dm' });
+		this.rnet.prom.register.getSingleMetric('dyno_app_messages_sent').inc({ type: 'dm' });
 		return new Promise((resolve: Function, reject: Function) =>
 			this.client.getDMChannel(userId)
 				.catch(reject)
@@ -430,7 +430,7 @@ class Base {
 		if (this.suppressOutput) {
 			return Promise.resolve(null);
 		}
-		this.dyno.prom.register.getSingleMetric('dyno_app_messages_sent').inc({ type: 'normal' });
+		this.rnet.prom.register.getSingleMetric('dyno_app_messages_sent').inc({ type: 'normal' });
 		if (this.responseChannel) {
 			return this.utils.sendMessage(this.responseChannel, content, options);
 		}
@@ -441,7 +441,7 @@ class Base {
 	 * Execute a webhook
 	 */
 	public executeWebhook(webhook: WebhookConfig, options: WebhookOptions): Promise<{}> {
-		this.dyno.prom.register.getSingleMetric('dyno_app_messages_sent').inc({ type: 'webhook' });
+		this.rnet.prom.register.getSingleMetric('dyno_app_messages_sent').inc({ type: 'webhook' });
 		if (options.slack) {
 			delete options.slack;
 			return this.client.executeSlackWebhook(webhook.id, webhook.token, options);
@@ -454,7 +454,7 @@ class Base {
 	 */
 	public async sendWebhook(channel: eris.TextChannel, options: WebhookOptions, guildConfig: any): Promise<{}> {
 		options.avatarURL = options.avatarURL ||
-			`https://cdn.discordapp.com/avatars/${this.dyno.user.id}/${this.dyno.user.avatar}.jpg`;
+			`https://cdn.discordapp.com/avatars/${this.rnet.user.id}/${this.rnet.user.avatar}.jpg`;
 
 		const avatarURL = `${this.config.site.host}/${this.config.avatar}?r=${this.config.version}`;
 
@@ -477,7 +477,7 @@ class Base {
 		let webhook;
 
 		try {
-			webhook = await this.dyno.webhooks.getOrCreate(channel);
+			webhook = await this.rnet.webhooks.getOrCreate(channel);
 		} catch (err) {
 			return Promise.reject(err);
 		}
@@ -485,7 +485,7 @@ class Base {
 		if (webhook) {
 			guildConfig.webhooks = guildConfig.webhooks || {};
 			guildConfig.webhooks[channel.id] = webhook;
-			this.dyno.guilds.update({ _id: channel.guild.id }, { $set: { webhooks: guildConfig.webhooks } }).catch(() => false);
+			this.rnet.guilds.update({ _id: channel.guild.id }, { $set: { webhooks: guildConfig.webhooks } }).catch(() => false);
 		}
 
 		return this.executeWebhook(webhook, payload);
