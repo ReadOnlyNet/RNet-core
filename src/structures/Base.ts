@@ -18,10 +18,10 @@ interface Base {
 class Base {
 	public guild: eris.Guild;
 	public module: string|Module;
-	private _dyno: any;
+	private _rnet: any;
 
 	constructor(rnet: any, guild?: eris.Guild) {
-		this._dyno = rnet;
+		this._rnet = rnet;
 
 		if (guild) {
 			this.guild = guild;
@@ -60,7 +60,7 @@ class Base {
 	 * RNet instance
 	 */
 	public get rnet() {
-		return this._dyno;
+		return this._rnet;
 	}
 
 	/**
@@ -176,7 +176,7 @@ class Base {
 	}
 
 	get langs() {
-		return this._dyno.langs;
+		return this._rnet.langs;
 	}
 
 	public getConfig(guildId: string): Promise<any> {
@@ -411,7 +411,7 @@ class Base {
 	 * Attempt to send a DM to a user
 	 */
 	public sendDM(userId: string, content: eris.MessageContent): Promise<eris.Message> {
-		this.rnet.prom.register.getSingleMetric('dyno_app_messages_sent').inc({ type: 'dm' });
+		this.rnet.prom.register.getSingleMetric('rnet_app_messages_sent').inc({ type: 'dm' });
 		return new Promise((resolve: Function, reject: Function) =>
 			this.client.getDMChannel(userId)
 				.catch(reject)
@@ -430,7 +430,7 @@ class Base {
 		if (this.suppressOutput) {
 			return Promise.resolve(null);
 		}
-		this.rnet.prom.register.getSingleMetric('dyno_app_messages_sent').inc({ type: 'normal' });
+		this.rnet.prom.register.getSingleMetric('rnet_app_messages_sent').inc({ type: 'normal' });
 		if (this.responseChannel) {
 			return this.utils.sendMessage(this.responseChannel, content, options);
 		}
@@ -441,7 +441,7 @@ class Base {
 	 * Execute a webhook
 	 */
 	public executeWebhook(webhook: WebhookConfig, options: WebhookOptions): Promise<{}> {
-		this.rnet.prom.register.getSingleMetric('dyno_app_messages_sent').inc({ type: 'webhook' });
+		this.rnet.prom.register.getSingleMetric('rnet_app_messages_sent').inc({ type: 'webhook' });
 		if (options.slack) {
 			delete options.slack;
 			return this.client.executeSlackWebhook(webhook.id, webhook.token, options);

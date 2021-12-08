@@ -60,11 +60,11 @@ export default class Purger extends Base {
 		return new Promise((resolve: Function, reject: Function) =>
 			this.client.deleteMessages(channelId, messageIds)
 				.catch((err: any) => {
-					this.prom.register.getSingleMetric('dyno_app_purge_failed').inc();
+					this.prom.register.getSingleMetric('rnet_app_purge_failed').inc();
 					return reject(err);
 				})
 				.then(() => {
-					this.prom.register.getSingleMetric('dyno_app_purge_success').inc();
+					this.prom.register.getSingleMetric('rnet_app_purge_success').inc();
 					return resolve();
 				}));
 	}
