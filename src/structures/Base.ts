@@ -342,8 +342,8 @@ class Base {
 	/**
 	 * Resolve username/id/mention
 	 */
-	public resolveUser(guild: eris.Guild, user: string, context?: any[], exact?: boolean): eris.Member | eris.User {
-		return Resolver.user(guild, user, context, exact);
+	public resolveUser(guild: eris.Guild, user: string, context?: any[], exact?: boolean): Promise<eris.Member | eris.User> {
+		return Resolver.user(guild, user, exact);
 	}
 
 	/**
@@ -543,28 +543,6 @@ class Base {
 			this.sendMessage(channel, { embed })
 				.catch((e: Error) => e)
 				.then(() => reject(err || content)));
-	}
-
-	public buildEmbed(embedOptions: eris.EmbedOptions, allowOverrides: boolean = false): eris.EmbedOptions {
-		let embed = {
-			color: this.utils.getColor('blue'),
-			timestamp: (new Date()).toISOString(),
-			...embedOptions,
-		};
-
-		const overrides = this.dyno.globalConfig.embedOverrides;
-
-		if (allowOverrides && overrides) {
-			if (overrides.fields) {
-				embed.fields = embed.fields || [];
-				embed.fields = embed.fields.concat(overrides.fields);
-			}
-			if (overrides.embed) {
-				embed = Object.assign(embed, ...overrides.embed);
-			}
-		}
-
-		return embed;
 	}
 
 	public debug(message: string): void {

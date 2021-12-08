@@ -7,18 +7,21 @@ export default class Resolver {
 	/**
 	 * Resolve username/id/mention
 	 */
-	public static user(guild: eris.Guild, user: string, context?: any[], exact?: boolean): eris.Member|eris.User {
+	public static async user(guild: eris.Guild, user: string, exact?: boolean): Promise<eris.Member|eris.User> {
 		if (!user) {
 			return null;
 		}
 
-		let users = [];
+		let users;
 
-		if (context) {
-			users = context;
-		} else {
-			users = guild ? [...guild.members.values()] : [];
+		const query = user.includes('#') ? user.split('#')[0] : user;
+
+		try {
+			users = await this.getMembers(guild, query);
+		} catch (err) {
+			console.error(err);
 		}
+		const shard = guild.shard;
 
 		if (!users || !users.length) {
 			return null;
@@ -37,14 +40,6 @@ export default class Resolver {
 			const nameDiscrimSearch = users.find((u: eris.Member) => u.username === name && u.discriminator === discrim);
 			if (nameDiscrimSearch) {
 				return nameDiscrimSearch;
-			}
-		}
-
-		// check if it's an id
-		if (user.match(/^([0-9]+)$/)) {
-			const userIdSearch = users.find((u: eris.Member) => u.id === user);
-			if (userIdSearch) {
-				return userIdSearch;
 			}
 		}
 
@@ -110,5 +105,37 @@ export default class Resolver {
 		if (channelNameSearch) {
 			return channelNameSearch;
 		}
+	}
+
+	private static getMembers(guild: eris.Guild, query: string): Promise<eris.Member[]> {
+		return new Promise((resolve: Function, reject: Function) => {
+			let timeout: NodeJS.Timer;
+			const shard = guild.shard;
+			const opListener = (_guild: eris.Guild, members: eris.Member[]) => {
+				if (_guild.id === guild.id) {
+					if (timeout) {
+						clearTimeout(timeout);
+					}
+					shard.client.removeListener('guildMemberChunk', opListener);
+					return resolve(members);
+				}
+			};
+
+			if (query.match(/^([0-9]+)$/)) {
+				guild.shard.sendWS(8, {
+					guild_id: guild.id,
+					user_ids: [query],
+					limit: 20,
+				});
+			} else {
+				guild.shard.requestGuildMembers(guild.id, query, 20);
+			}
+
+			shard.client.on('guildMemberChunk', opListener);
+			timeout = setTimeout(() => {
+				shard.client.removeListener('guildMemberChunk', opListener);
+				return Promise.reject(`Request timed out.`);
+			}, 6000);
+		});
 	}
 }
