@@ -545,6 +545,28 @@ class Base {
 				.then(() => reject(err || content)));
 	}
 
+	public buildEmbed(embedOptions: eris.EmbedOptions, allowOverrides: boolean = false): eris.EmbedOptions {
+		let embed = {
+			color: this.utils.getColor('blue'),
+			timestamp: (new Date()).toISOString(),
+			...embedOptions,
+		};
+
+		const overrides = this.dyno.globalConfig.embedOverrides;
+
+		if (allowOverrides && overrides) {
+			if (overrides.fields) {
+				embed.fields = embed.fields || [];
+				embed.fields = embed.fields.concat(overrides.fields);
+			}
+			if (overrides.embed) {
+				embed = Object.assign(embed, ...overrides.embed);
+			}
+		}
+
+		return embed;
+	}
+
 	public debug(message: string): void {
 		const module = typeof this.module === 'object' ? this.module.name : this.module || this.constructor.name;
 		this.logger.debug(`[${module}]: ${message}`);
