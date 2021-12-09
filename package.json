@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/ReadOnlyNet/RNet-core#readme",
   "dependencies": {
-    "@rnet.cf/eris": "^0.11.4",
+    "@rnet.cf/eris": "git+https://github.com/ReadOnlyNet/eris",
     "async-each": "^1.0.1",
     "axios": "^0.18.0",
     "bluebird": "^3.5.1",
